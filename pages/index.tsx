@@ -111,7 +111,9 @@ export default function Home() {
   );
 }
 
-export async function getServerSideProps(context: any) {
+import type { GetServerSidePropsContext } from 'next';
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   const authHeader = context.req.headers.authorization;
 
   const USERNAME = process.env.BASIC_AUTH_USER;
