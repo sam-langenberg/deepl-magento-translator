@@ -7,7 +7,12 @@ const LANGUAGES = [
 
 export default function Home() {
   const [input, setInput] = useState('');
-  const [translations, setTranslations] = useState<any[]>([]);
+  type TranslationRow = {
+  string: string;
+  translations: Record<string, string>;
+};
+  const [translations, setTranslations] = useState<TranslationRow[]>([]);
+
   const [loading, setLoading] = useState(false);
 
   const handleTranslate = async () => {

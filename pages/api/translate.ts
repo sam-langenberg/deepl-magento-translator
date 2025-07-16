@@ -30,7 +30,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Invalid input format' });
   }
 
-  const results: any[] = [];
+  type TranslationResult = {
+    string: string;
+    translations: Record<string, string>;
+  };
+
+  const results: TranslationResult[] = [];
 
   for (const str of strings) {
     const translations: Record<string, string> = {};
@@ -58,7 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log(`[${targetLang}] "${str}" →`, JSON.stringify(data));
 
     baseTranslations[targetLang] = data?.translations?.[0]?.text || '';
-      } catch (e) {
+      } catch {
         baseTranslations[targetLang] = '';
       }
     }
