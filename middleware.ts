@@ -1,20 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const USERNAME = process.env.NEXT_PUBLIC_BASIC_AUTH_USER || '';
-const PASSWORD = process.env.NEXT_PUBLIC_BASIC_AUTH_PASS || '';
+const USERNAME = process.env.NEXT_PUBLIC_BASIC_AUTH_USER || 'sam';
+const PASSWORD = process.env.NEXT_PUBLIC_BASIC_AUTH_PASS || 'letmein';
 
 export function middleware(req: NextRequest) {
+  // Log for debugging in Vercel logs
+  console.log('🧪 BASIC AUTH ENV:', {
+    USERNAME,
+    PASSWORD_SET: !!process.env.NEXT_PUBLIC_BASIC_AUTH_PASS,
+  });
+
+  // If env vars are still missing — return 500
   if (!USERNAME || !PASSWORD) {
-    console.error('❌ BASIC AUTH ENV VARIABLES MISSING');
-    return new NextResponse('Internal server error', { status: 500 });
+    return new NextResponse('Internal server error (auth not configured)', { status: 500 });
   }
 
-  const basicAuth = req.headers.get('authorization');
+  const authHeader = req.headers.get('authorization');
 
-  if (basicAuth) {
-    const [scheme, encoded] = basicAuth.split(' ');
+  if (authHeader) {
+    const [scheme, encoded] = authHeader.split(' ');
 
-    if (scheme === 'Basic') {
+    if (scheme === 'Basic' && encoded) {
       const decoded = Buffer.from(encoded, 'base64').toString();
       const [user, pass] = decoded.split(':');
 
@@ -24,10 +30,11 @@ export function middleware(req: NextRequest) {
     }
   }
 
+  // If auth fails, prompt browser login
   return new NextResponse('Unauthorized', {
     status: 401,
     headers: {
-      'WWW-Authenticate': 'Basic realm="Protected"',
+      'WWW-Authenticate': 'Basic realm="Restricted Area"',
     },
   });
 }
