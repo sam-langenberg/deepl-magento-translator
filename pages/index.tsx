@@ -115,18 +115,14 @@ import type { GetServerSidePropsContext } from 'next';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const authHeader = context.req.headers.authorization;
-
   const USERNAME = process.env.BASIC_AUTH_USER;
   const PASSWORD = process.env.BASIC_AUTH_PASS;
 
   if (!authHeader) {
-    return {
-      props: {},
-      redirect: {
-        destination: '/api/auth',
-        permanent: false,
-      },
-    };
+    context.res.statusCode = 401;
+    context.res.setHeader('WWW-Authenticate', 'Basic realm="Restricted Area"');
+    context.res.end('Authentication required');
+    return { props: {} };
   }
 
   const base64Credentials = authHeader.split(' ')[1];
@@ -134,13 +130,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const [user, pass] = credentials.split(':');
 
   if (user !== USERNAME || pass !== PASSWORD) {
-    return {
-      props: {},
-      redirect: {
-        destination: '/api/auth',
-        permanent: false,
-      },
-    };
+    context.res.statusCode = 401;
+    context.res.setHeader('WWW-Authenticate', 'Basic realm="Restricted Area"');
+    context.res.end('Invalid credentials');
+    return { props: {} };
   }
 
   return {
